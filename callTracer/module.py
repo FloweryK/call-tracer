@@ -104,7 +104,6 @@ class tracer:
         
         return self.trace_function_calls
     
-    
     def _shorten_path(self, path):
         for path_cut in self.path_cuts:
             parts = path.split(os.path.sep + path_cut + os.path.sep)[1:]
