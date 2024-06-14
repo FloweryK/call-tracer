@@ -33,6 +33,7 @@ def _get_frame_info(frame: FrameType):
         'name': class_name + function_name
     }
 
+
 def _is_parent_method_call(frame: FrameType):
     if 'self' in frame.f_locals:
         self_instance = frame.f_locals['self']
