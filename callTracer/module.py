@@ -94,7 +94,7 @@ class tracer:
         depth = _get_frame_depth(frame)
         if depth < 0: 
             return
-        if abs(depth - self.prev_depth) > 1:
+        if self.prev_depth != -1 and abs(depth - self.prev_depth) > 1:
             return
         self.prev_depth = depth
 
