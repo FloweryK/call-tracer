@@ -47,9 +47,12 @@ def _is_parent_method_call(frame: FrameType):
 class tracer:
     # configs
     max_depth = 4
-    prev_depth = -1
     path_cuts = []
     path_filters = []
+
+    # internal parameters
+    prev_depth = -1
+    depth_offset = -1
 
     # default filters
     DEFAULT_PATH_CUTS = []
@@ -97,6 +100,11 @@ class tracer:
         if self.prev_depth != -1 and abs(depth - self.prev_depth) > 1:
             return
         self.prev_depth = depth
+
+        # adjust depth with offset
+        if self.depth_offset == -1:
+            self.depth_offset = depth
+        depth -= self.depth_offset
 
         # print
         if depth <= self.max_depth:
