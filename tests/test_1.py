@@ -1,5 +1,5 @@
 import os
-from callTracer import tracer
+from calltracer import tracer
 
 
 def test_tracer(capsys):
