@@ -1,5 +1,6 @@
 import os
 import sys
+import site
 import colorama
 from colorama import Fore
 from types import FrameType
@@ -45,18 +46,19 @@ def _is_parent_method_call(frame: FrameType):
 
 
 class tracer:
+    # default filters
+    DEFAULT_PATH_CUTS = [] + site.getsitepackages()
+    DEFAULT_PATH_FILTERS = ['frozen importlib']
+
     # configs
     max_depth = 4
-    path_cuts = []
-    path_filters = []
+    path_cuts = DEFAULT_PATH_CUTS
+    path_filters = DEFAULT_PATH_FILTERS
 
     # internal parameters
     prev_depth = -1
     depth_offset = -1
 
-    # default filters
-    DEFAULT_PATH_CUTS = []
-    DEFAULT_PATH_FILTERS = ['frozen importlib']
 
     def __init__(self, func):
         colorama.init()
@@ -115,7 +117,7 @@ class tracer:
     
     def _shorten_path(self, path):
         for path_cut in self.path_cuts:
-            parts = path.split(os.path.sep + path_cut + os.path.sep)[1:]
+            parts = path.split(path_cut)[1:]
             if parts:
                 path = ''.join(parts)
         return path
