@@ -1,6 +1,4 @@
-import os
 import sys
-import site
 import colorama
 from colorama import Fore
 from types import FrameType
@@ -47,7 +45,7 @@ def _is_parent_method_call(frame: FrameType):
 
 class tracer:
     # default filters
-    DEFAULT_PATH_CUTS = [] + site.getsitepackages()
+    DEFAULT_PATH_CUTS = ['site-packages']
     DEFAULT_PATH_FILTERS = ['frozen importlib']
 
     # configs
