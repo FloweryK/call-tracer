@@ -1,3 +1,4 @@
+import re
 import os
 from calltracer import tracer
 
@@ -16,7 +17,7 @@ def test_tracer(capsys):
     # capture stdout
     function_depth_0()
     captured = capsys.readouterr()
-    assert "  0 CALL" in captured.out
+    assert re.search(r"^  0 CALL", captured.out) is not None
 
 
 def test_set_max_depth(capsys):
@@ -36,8 +37,9 @@ def test_set_max_depth(capsys):
     # capture stdout
     function_depth_0()
     captured = capsys.readouterr()
-    assert "  1 |   CALL" in captured.out
-    assert "  2 |   |   CALL" not in captured.out
+    assert re.search(r"^  0 CALL", captured.out) is not None
+    assert re.search(r"  1 \|   line \d+ => CALL", captured.out) is not None
+    assert re.search(r"  2 \|   \|   line \d+ => CALL", captured.out) is None
 
     # return to default
     tracer.set_max_depth(4)

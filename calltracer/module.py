@@ -124,9 +124,10 @@ class tracer:
     
     def _format_trace_output(self, depth, event, caller, callee, is_parent_call):
         text = f"{str(depth).rjust(3)} " + '|   ' * depth
+        if depth != 0:
+            text += f"{Fore.YELLOW}line {caller['line']}{Fore.RESET}"
+            text += f" {'=> ' if event == 'call' else '<= '}"
         text += f"{Fore.CYAN}{event.upper().ljust(6)}{Fore.RESET}"
-        text += f" ({self._shorten_path(caller['path'])} {Fore.YELLOW}line {caller['line']}{Fore.RESET}) {Fore.GREEN}{caller['name']}{Fore.RESET}"
-        text += f" {' => ' if event == 'call' else ' <= '}"
         text += f" ({self._shorten_path(callee['path'])} {Fore.YELLOW}line {callee['line']}{Fore.RESET}) {Fore.GREEN}{callee['name']}{Fore.RESET}"
         if is_parent_call:
             text += f" {Fore.MAGENTA}[parent call]{Fore.RESET}"
