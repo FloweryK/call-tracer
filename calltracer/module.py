@@ -53,7 +53,7 @@ class tracer:
     max_depth = 4
     path_cuts = DEFAULT_PATH_CUTS
     path_filters = DEFAULT_PATH_FILTERS
-    is_show_args = True
+    is_show_args = False
 
     # internal parameters
     prev_depth = -1
