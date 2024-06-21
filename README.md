@@ -47,6 +47,18 @@ main()
 
 <br/>
 
+Alternatively, you can use `tracer.start()` instead of the decorator.
+
+```python
+tracer.start()
+add_two()
+tracer.end()
+```
+
+<br/>
+
+<br/>
+
 ### Customizations
 
 If you want to use `tracer` to monitor the internal workings of [langchain](https://github.com/langchain-ai/langchain), you'll encounter a tremendous number of calls and returns, each accompanied by very long file paths. Therefore, you may need to customize the `tracer` slightly:
@@ -76,6 +88,7 @@ main()
 - `set_path_cuts` : Specify paths to be shortened in the trace output to simplify and clean up the displayed file paths in the trace logs. 
   - For example, if you use `trace.set_path_cuts(['PythonProjects'])`, the path `/Users/your_name/PythonProjects/your_project/sample.py` will be shortened to `your_project/sample.py`.
 - `set_path_filters` : Specify paths to be excluded from tracing, preventing the trace function from logging calls and returns for files matching these paths.
+- `set_show_args` : If `True`, the tracer displays the input arguments of the calls.
 
 <br/>
 
