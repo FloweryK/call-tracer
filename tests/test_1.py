@@ -61,6 +61,14 @@ def test_set_path_filters():
     tracer.set_path_filters([])
 
 
+def test_set_show_args():
+    tracer.set_show_args(True)
+    assert tracer.is_show_args == True
+
+    # return to default
+    tracer.set_show_args(False)
+
+
 def test_shorten_path():
     t = tracer(func=lambda x: x)
     t.set_path_cuts(path_cuts=['test_path'])
