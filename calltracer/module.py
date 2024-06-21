@@ -5,7 +5,7 @@ from types import FrameType
 
 
 def _get_frame_depth(frame: FrameType):
-    depth = -2
+    depth = 0
     current_frame = frame
     while current_frame.f_back:
         current_frame = current_frame.f_back
@@ -56,8 +56,8 @@ class tracer:
     is_show_args = False
 
     # internal parameters
-    prev_depth = -1
-    depth_offset = -1
+    prev_depth = None
+    depth_offset = None
 
     def __init__(self, func):
         colorama.init()
@@ -100,14 +100,12 @@ class tracer:
 
         # calculate callee's depth
         depth = _get_frame_depth(frame)
-        if depth < 0: 
-            return
-        if self.prev_depth != -1 and abs(depth - self.prev_depth) > 1:
+        if self.prev_depth != None and abs(depth - self.prev_depth) > 1:
             return
         self.prev_depth = depth
 
         # adjust depth with offset
-        if self.depth_offset == -1:
+        if self.depth_offset == None:
             self.depth_offset = depth
         depth -= self.depth_offset
 
