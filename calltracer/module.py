@@ -29,7 +29,8 @@ def _get_frame_info(frame: FrameType):
     return {
         'path': frame.f_code.co_filename,
         'line': frame.f_lineno,
-        'name': class_name + function_name
+        'name': class_name + function_name,
+        'args': frame.f_locals
     }
 
 
@@ -52,11 +53,11 @@ class tracer:
     max_depth = 4
     path_cuts = DEFAULT_PATH_CUTS
     path_filters = DEFAULT_PATH_FILTERS
+    is_show_args = True
 
     # internal parameters
     prev_depth = -1
     depth_offset = -1
-
 
     def __init__(self, func):
         colorama.init()
@@ -79,6 +80,10 @@ class tracer:
     @classmethod
     def set_path_filters(cls, path_filters):
         cls.path_filters = cls.DEFAULT_PATH_FILTERS + path_filters
+
+    @classmethod
+    def set_show_args(cls, is_show_args):
+        cls.is_show_args = is_show_args
     
     def trace_function_calls(self, frame: FrameType, event: str, _):
         # only trace 'call' and 'return' events
@@ -121,6 +126,7 @@ class tracer:
         return path
     
     def _format_trace_output(self, depth, event, caller, callee, is_parent_call):
+        # call information
         text = f"{str(depth).rjust(3)} " + '|   ' * depth
         if depth != 0:
             text += f"{Fore.YELLOW}line {caller['line']}{Fore.RESET}"
@@ -129,5 +135,15 @@ class tracer:
         text += f" ({self._shorten_path(callee['path'])} {Fore.YELLOW}line {callee['line']}{Fore.RESET}) {Fore.GREEN}{callee['name']}{Fore.RESET}"
         if is_parent_call:
             text += f" {Fore.MAGENTA}[parent call]{Fore.RESET}"
+        
+        # args information (call event only)
+        if self.is_show_args and (event == 'call'):
+            for arg, value in callee['args'].items():
+                if arg in ('self', 'cls') or type(value) == type:
+                    continue
+                text += "\n"
+                text += f"{str('').rjust(3)} " + '|   ' * (depth+1)
+                text += f"{Fore.MAGENTA}{arg}{Fore.RESET} = {value}"
+
         return text
     
