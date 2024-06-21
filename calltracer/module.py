@@ -70,6 +70,21 @@ class tracer:
         return result
     
     @classmethod
+    def start(cls):
+        # reset the parameters
+        cls.prev_depth = None
+        cls.depth_offset = None
+        sys.settrace(cls.trace_function_calls)
+    
+    @classmethod
+    def end(cls):
+        # reset the parameters
+        cls.prev_depth = None
+        cls.depth_offset = None
+        sys.settrace(None)
+        
+    
+    @classmethod
     def set_max_depth(cls, max_depth):
         cls.max_depth = max_depth
     
@@ -85,7 +100,8 @@ class tracer:
     def set_show_args(cls, is_show_args):
         cls.is_show_args = is_show_args
     
-    def trace_function_calls(self, frame: FrameType, event: str, _):
+    @staticmethod
+    def trace_function_calls(frame: FrameType, event: str, arg):
         # only trace 'call' and 'return' events
         if event not in ('call', 'return'):
             return
@@ -95,53 +111,56 @@ class tracer:
         caller = _get_frame_info(frame.f_back)
 
         # filter by filename
-        if any((filter_str in caller['path'] or filter_str in callee['path']) for filter_str in self.path_filters):
+        if any((filter_str in caller['path'] or filter_str in callee['path']) for filter_str in tracer.path_filters):
             return
 
         # calculate callee's depth
         depth = _get_frame_depth(frame)
-        if self.prev_depth != None and abs(depth - self.prev_depth) > 1:
+        if tracer.prev_depth is not None and abs(depth - tracer.prev_depth) > 1:
             return
-        self.prev_depth = depth
+        tracer.prev_depth = depth
 
         # adjust depth with offset
-        if self.depth_offset == None:
-            self.depth_offset = depth
-        depth -= self.depth_offset
+        if tracer.depth_offset is None:
+            tracer.depth_offset = depth
+        depth -= tracer.depth_offset
 
         # print
-        if depth <= self.max_depth:
+        if depth <= tracer.max_depth:
             is_parent_call = _is_parent_method_call(frame)
-            print(self._format_trace_output(depth, event, caller, callee, is_parent_call))
+
+            if callee['name'] != 'tracer.end':
+                print(tracer._format_trace_output(depth, event, caller, callee, is_parent_call))
         
-        return self.trace_function_calls
+        return tracer.trace_function_calls
     
-    def _shorten_path(self, path):
-        for path_cut in self.path_cuts:
+    @staticmethod
+    def _shorten_path(path):
+        for path_cut in tracer.path_cuts:
             parts = path.split(path_cut)[1:]
             if parts:
                 path = ''.join(parts)
         return path
     
-    def _format_trace_output(self, depth, event, caller, callee, is_parent_call):
+    @staticmethod
+    def _format_trace_output(depth, event, caller, callee, is_parent_call):
         # call information
         text = f"{str(depth).rjust(3)} " + '|   ' * depth
         if depth != 0:
             text += f"{Fore.YELLOW}line {caller['line']}{Fore.RESET}"
             text += f" {'=> ' if event == 'call' else '<= '}"
         text += f"{Fore.CYAN}{event.upper().ljust(6)}{Fore.RESET}"
-        text += f" ({self._shorten_path(callee['path'])} {Fore.YELLOW}line {callee['line']}{Fore.RESET}) {Fore.GREEN}{callee['name']}{Fore.RESET}"
+        text += f" ({tracer._shorten_path(callee['path'])} {Fore.YELLOW}line {callee['line']}{Fore.RESET}) {Fore.GREEN}{callee['name']}{Fore.RESET}"
         if is_parent_call:
             text += f" {Fore.MAGENTA}[parent call]{Fore.RESET}"
         
         # args information (call event only)
-        if self.is_show_args and (event == 'call'):
+        if tracer.is_show_args and (event == 'call'):
             for arg, value in callee['args'].items():
-                if arg in ('self', 'cls') or type(value) == type:
+                if arg in ('self', 'cls') or isinstance(value, type):
                     continue
                 text += "\n"
                 text += f"{str('').rjust(3)} " + '|   ' * (depth+1)
                 text += f"{Fore.MAGENTA}{arg}{Fore.RESET} = {value}"
 
         return text
-    

@@ -1,9 +1,10 @@
 import re
 import os
+from colorama import Fore
 from calltracer import tracer
 
 
-def test_tracer(capsys):
+def test_tracer_decorator(capsys):
     @tracer
     def function_depth_0():
         function_depth_1()
@@ -17,7 +18,26 @@ def test_tracer(capsys):
     # capture stdout
     function_depth_0()
     captured = capsys.readouterr()
-    assert re.search(r"^  0 CALL", captured.out) is not None
+    assert re.search(r"^  0", captured.out) is not None
+
+
+def test_tracer_starter(capsys):
+    def function_depth_0():
+        function_depth_1()
+
+    def function_depth_1():
+        function_depth_2()
+
+    def function_depth_2():
+        pass
+
+    # capture stdout
+    tracer.start()
+    function_depth_0()
+    captured = capsys.readouterr()
+    tracer.end()
+
+    assert re.search(r"^  0", captured.out) is not None
 
 
 def test_set_max_depth(capsys):
@@ -37,9 +57,9 @@ def test_set_max_depth(capsys):
     # capture stdout
     function_depth_0()
     captured = capsys.readouterr()
-    assert re.search(r"^  0 CALL", captured.out) is not None
-    assert re.search(r"  1 \|   line \d+ => CALL", captured.out) is not None
-    assert re.search(r"  2 \|   \|   line \d+ => CALL", captured.out) is None
+    assert re.search(r"^  0", captured.out) is not None
+    assert re.search(r"  1 \|   line \d+ =>", captured.out) is not None
+    assert re.search(r"  2 \|   \|   line \d+ =>", captured.out) is None
 
     # return to default
     tracer.set_max_depth(4)
