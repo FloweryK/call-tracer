@@ -58,9 +58,11 @@ class tracer:
     # internal parameters
     prev_depth = None
     depth_offset = None
+    
+    # initialize colorama
+    colorama.init()
 
     def __init__(self, func):
-        colorama.init()
         self.func = func
 
     def __call__(self, *args, **kwargs):
