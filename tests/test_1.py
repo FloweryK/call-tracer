@@ -18,7 +18,9 @@ def test_tracer_decorator(capsys):
     # capture stdout
     function_depth_0()
     captured = capsys.readouterr()
-    assert re.search(r"^  0", captured.out) is not None
+    assert re.search(r"function_depth_0", captured.out) is not None
+    assert re.search(r"function_depth_1", captured.out) is not None
+    assert re.search(r"function_depth_2", captured.out) is not None
 
 
 def test_tracer_starter(capsys):
@@ -34,10 +36,11 @@ def test_tracer_starter(capsys):
     # capture stdout
     tracer.start()
     function_depth_0()
-    captured = capsys.readouterr()
     tracer.end()
-
-    assert re.search(r"^  0", captured.out) is not None
+    captured = capsys.readouterr()
+    assert re.search(r"function_depth_0", captured.out) is not None
+    assert re.search(r"function_depth_1", captured.out) is not None
+    assert re.search(r"function_depth_2", captured.out) is not None
 
 
 def test_set_max_depth(capsys):
@@ -57,9 +60,9 @@ def test_set_max_depth(capsys):
     # capture stdout
     function_depth_0()
     captured = capsys.readouterr()
-    assert re.search(r"^  0", captured.out) is not None
-    assert re.search(r"  1 \|   ", captured.out) is not None
-    assert re.search(r"  2 \|   \|   ", captured.out) is None
+    assert re.search(r"function_depth_0", captured.out) is not None
+    assert re.search(r"function_depth_1", captured.out) is not None
+    assert re.search(r"function_depth_2", captured.out) is None
 
     # return to default
     tracer.set_max_depth(4)

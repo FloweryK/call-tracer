@@ -41,7 +41,7 @@ def main():
 main()
 ```
 
-![sample_1](src/sample_1.gif)
+![sample_1](src/sample_1.png)
 
 <br/>
 
@@ -68,7 +68,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from calltracer import tracer
 tracer.set_max_depth(3)
 tracer.set_path_cuts(['python3.9'])
-tracer.set_path_filters(['pydantic'])
+tracer.set_path_filters(['python3.9/abc', 'pydantic'])
 
 
 @tracer
@@ -82,7 +82,7 @@ def main():
 main()
 ```
 
-![sample_1](src/sample_2.gif)
+![sample_1](src/sample_2.png)
 
 - `set_max_depth` : Set the maximum depth for tracing. (prints `depth` <= `max_depth`)
 - `set_path_cuts` : Specify paths to be shortened in the trace output to simplify and clean up the displayed file paths in the trace logs. 
