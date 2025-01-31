@@ -49,6 +49,7 @@ class tracer:
 
     history = []
     depth = 0
+    step = 0
 
     def __init__(self, func):
         colorama.init()
@@ -112,17 +113,22 @@ class tracer:
         if any((filter_str in caller['path'] or filter_str in callee['path']) for filter_str in tracer.path_filters):
             return
 
+        # adjust depth (for return)
         if event == 'return':
             tracer.depth -= 1
 
         if (callee['name'] != 'tracer.end') and (tracer.depth <= tracer.max_depth):
             if caller['name'] == 'tracer.__call__':
-                tracer.history.append((tracer.depth, event, caller_caller, callee, _is_parent_method_call(frame)))
+                tracer.history.append((tracer.step, tracer.depth, event, caller_caller, callee, _is_parent_method_call(frame)))
             else:
-                tracer.history.append((tracer.depth, event, caller, callee, _is_parent_method_call(frame)))    
-            
+                tracer.history.append((tracer.step, tracer.depth, event, caller, callee, _is_parent_method_call(frame)))    
+        
+        # adjust depth (for call)
         if event == 'call':
             tracer.depth += 1
+        
+        # adjust step
+        tracer.step += 1
         
         return tracer.trace_function_calls
     
@@ -136,9 +142,15 @@ class tracer:
     
     @staticmethod
     def _print():
-        for i, (depth, event, caller, callee, is_parent_call) in enumerate(tracer.history):
+        print('STEP DEPTH')
+
+        step_prev = -1
+        for step, depth, event, caller, callee, is_parent_call in tracer.history:
+            if step_prev + 1 != step:
+                print('...'.rjust(4))
+            
             # depth
-            text = f"{str(depth).rjust(3)} " + '|   ' * depth
+            text = f"{str(step).rjust(4)} {str(depth).rjust(5)} " + '|   ' * depth
             text += f"{Fore.CYAN}{event.upper().ljust(7)}{Fore.RESET}"
 
             # caller
@@ -166,5 +178,7 @@ class tracer:
             # adjust depth for return
             if event == 'return':
                 depth -= 1
+            
+            step_prev = step
             
             print(text)
