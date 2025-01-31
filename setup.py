@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='call-tracer',
-    version='1.2.0',
+    version='1.2.2',
     author='FloweryK',
     author_email='flowerk94@gmail.com',description='A library for tracing function calls with depth control and filtering.',
     long_description=open('README.md').read(),
